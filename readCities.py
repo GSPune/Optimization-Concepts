@@ -13,7 +13,10 @@ def readcities():
                 break
             city += ", India"
             pt = geolocator.geocode(city,timeout=10000)
-            print("City = ",city,pt.latitude,pt.longitude)
+            with open('output.txt','a') as out:
+                #  out.write("City = ",city,pt.latitude,pt.longitude)
+                out.write(f"City = {city} {pt.latitude},{pt.longitude} \n")
+                # out.write('/n')
             p.insert(j,[pt.latitude,pt.longitude])
             j += 1
     return p
