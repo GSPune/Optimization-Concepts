@@ -7,18 +7,18 @@ def readcities():
     geolocator = Nominatim(user_agent="SG_App")
 
     with open("./india_cities.txt") as file:
-        for line in file:
-            city = line.rstrip("\n")
-            if(city == ""):
-                break
-            city += ", India"
-            pt = geolocator.geocode(city,timeout=10000)
-            with open('output.txt','a') as out:
+        with open('output.txt','w') as out:
+            for line in file:
+                city = line.rstrip("\n")
+                if(city == ""):
+                    break
+                city += ", India"
+                pt = geolocator.geocode(city,timeout=10000)
                 #  out.write("City = ",city,pt.latitude,pt.longitude)
                 out.write(f"City = {city} {pt.latitude},{pt.longitude} \n")
                 # out.write('/n')
-            p.insert(j,[pt.latitude,pt.longitude])
-            j += 1
+                p.insert(j,[pt.latitude,pt.longitude])
+                j += 1
     return p
 
 P = readcities()
