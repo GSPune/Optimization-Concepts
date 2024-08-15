@@ -1,6 +1,9 @@
 from geopy.geocoders import Nominatim
 from numpy import *
 from pylab import *
+import matplotlib
+import matplotlib.pyplot as plt
+# matplotlib.use('tkagg')
 import math
 
 def readcities(Pnames):
@@ -14,7 +17,7 @@ def readcities(Pnames):
                 city = line.rstrip("\n")
                 if(city == ""):
                     break
-                Pnames.insert(j,city)
+                Pnames.insert(j,city)#insert at jth position
                 city += ", India"
                 pt = geolocator.geocode(city,timeout=10000)
                 #  out.write("City = ",city,pt.latitude,pt.longitude)
@@ -53,10 +56,18 @@ def Plot(seq,P,dist,Pnames):
     Pt = [P[seq[i]] for i in range(len(seq))]
     Pt += [P[seq[0]]]
     Pt = array(P)
-    title('Total distance='+str(dist))
-    plot(Pt[:,0],Pt[:,1],'-o')
+    print(Pt[0,0])
+    print(Pt[1,0])
+
+    # fig, ax = plt.subplots()             # Create a figure containing a single Axes.
+    # ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the Axes.
+    #plt.show() 
+    # plt.savefig('img.png')
+    #ax.set_title('Total distance='+str(dist))
+    plt.plot(Pt[:,0],Pt[:,1],'-o')
+
     for i in range(len(P)):
-    	annotate(Pnames[i],(P[i][0],P[i][1]))
-    show()
+        plt.annotate(Pnames[i],(P[i][0],P[i][1]))
+    plt.show()
 
 Plot(s,P,506.75,Pnames)
