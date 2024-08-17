@@ -27,15 +27,9 @@ def readcities(Pnames):
                 j += 1
     return p
 
-Pnames = []
-P = readcities(Pnames)
-print(f"Number of cities is {len(P)}.")
-
-
 def distance(P1,P2):
     d = math.sqrt((P1[0]-P2[0])**2 + (P1[1]-P2[1])**2)
     return d
-
 
 #d1 = distance([23.0215374,72.5800568],[31.6343083,74.8736788])
 #print(d1)
@@ -55,19 +49,54 @@ s = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
 def Plot(seq,P,dist,Pnames):
     Pt = [P[seq[i]] for i in range(len(seq))]
     Pt += [P[seq[0]]]
-    Pt = array(P)
-    print(Pt[0,0])
-    print(Pt[1,0])
+    Pt = np.array(P)
+    #print(Pt[:,0])
 
-    # fig, ax = plt.subplots()             # Create a figure containing a single Axes.
-    # ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the Axes.
-    #plt.show() 
     # plt.savefig('img.png')
-    #ax.set_title('Total distance='+str(dist))
+    plt.title('Total distance='+str(dist))
     plt.plot(Pt[:,0],Pt[:,1],'-o')
 
     for i in range(len(P)):
         plt.annotate(Pnames[i],(P[i][0],P[i][1]))
     plt.show()
 
-Plot(s,P,506.75,Pnames)
+# Plot(s,P,506.75,Pnames)
+
+#It allows you to write code that runs only when the script is executed directly (not when imported).
+if __name__ == '__main__':
+    Pnames = []
+    P = readcities(Pnames)
+    nCity = len(P)
+    print(f"Number of cities is {nCity}.")
+
+    maxTsteps = 300 #Temp is lowered maxTsteps times
+    fCool = 0.92 #Factor to multiply temp at each cooling step
+    maxSwaps = 2000 #Number of swaps at constant temp
+
+    maxAccepted = 10*nCity # Number of accepted configuration changes at constant temperature
+
+    seq = np.arange(0,nCity,1) #start from 0 and go till in increment of 1
+    dist = totalDistance(P,seq)
+    temp = dist * 10.0 #let us start at a high temp
+
+    #printing the current configuration 
+    print("\n\n")
+    print(seq)
+    print("\n nCity= %3d dist= %f temp= %f \n" % (nCity, dist, temp))
+
+    input("...Press Enter to continue...")
+
+    Plot(seq,P,dist,Pnames)
+
+    prevDist, countC = 0.0, 0
+
+    for t in range(1,maxTsteps+1,1):
+        if temp < 1.0e-6: #min temp threshold
+            break
+        accepted = 0
+        iters = 0
+
+        while(iters < maxSwaps):
+            N1 = -1
+
+
