@@ -49,7 +49,7 @@ s = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
 def Plot(seq,P,dist,Pnames):
     Pt = [P[seq[i]] for i in range(len(seq))]
     Pt += [P[seq[0]]]
-    Pt = np.array(P)
+    Pt = np.array(Pt)
     #print(Pt[:,0])
 
     # plt.savefig('img.png')
@@ -80,30 +80,33 @@ def swap(P,seq,dist,N1,N2,temp,nCity):
     delta -= distance(P[seq[N2]],P[seq[R2]])
 
     #other four operations are not always needed
-    if R1 != L2 and R2 != L1: # 'If' N1 and N2 don't have a common neighbour
+    # if R1 != L2 and R2 != L1: # 'If' N1 and N2 don't have a common neighbour
+    if(N1 != L2 and R1 != N2 and R1 != L2 and N2 != L1):
         delta += distance(P[seq[N2]], P[seq[R1]])
         delta += distance(P[seq[L2]], P[seq[N1]])
         delta -= distance(P[seq[N1]], P[seq[R1]])
         delta -= distance(P[seq[L2]], P[seq[N2]])
-
+    
     prob = 1.0
     if (delta > 0.0):
         prob = exp(-delta/temp)
-        rand = random.random()
-        if(rand < prob): #accept the change
-            dist += delta
-            seq[N1],seq[N2] = seq[N2],seq[N1]
-            diff = abs(dist - totalDistance(P,seq)) #abs(delta)?
-            if(diff*dist > 0.01):
-                print("\n\n")
-                print( "N1=%3d N2=%3d N1L=%3d N1R=%3d N2L=%3d N2R=%3d \n" % (N1,N2, L1, R1, L2, R2))
-                print(seq)
 
-                print("\n nCity= %3d dist= %f temp= %f \n" % (nCity, dist, temp))
-                input("...Press Enter to continue...")
-            return dist,True
-        else: #reject
-            return dist,False
+    rand = random.random()
+    if(rand < prob): #accept the change
+        dist += delta
+        print("New Dist is:",dist)
+        seq[N1],seq[N2] = seq[N2],seq[N1]
+        diff = abs(dist - totalDistance(P,seq)) #abs(delta)?
+        if(diff*dist > 0.01):
+            print("\n\nIn SWAP")
+            print( "N1=%3d N2=%3d N1L=%3d N1R=%3d N2L=%3d N2R=%3d \n" % (N1,N2, L1, R1, L2, R2))
+            print(seq)
+
+            print("\n nCity= %3d dist= %f temp= %f \n" % (nCity, dist, temp))
+            # input("...Press Enter to continue...")
+        return dist,True
+    else: #reject
+        return dist,False
 
 def reverse(P,seq,dist,N1,N2,temp,nCity):
     L1,R2 = N1 - 1,N2 + 1
@@ -116,13 +119,15 @@ def reverse(P,seq,dist,N1,N2,temp,nCity):
                 -distance(P[seq[N1]],P[seq[L1]])-distance(P[seq[N2]],P[seq[R2]])
     else: #N1 > N2?
         return dist,False
+    
     prob = 1.0
-    if(delta > 0):
+    if(delta > 0.0):
         prob = exp(-delta/temp)
 
     rndm = random.random()
     if (rndm < prob):
         dist += delta
+        # print("New Dist is:",dist)
         i, j = N1,N2
         while(i < j):
             seq[i], seq[j] = seq[j], seq[i]
@@ -131,13 +136,13 @@ def reverse(P,seq,dist,N1,N2,temp,nCity):
         diff = abs(dist-totalDistance(P,seq))
         if(diff*dist > 0.01):
                 print(seq)
-
+                print("IN Reverse\n")
+                print( "N1=%3d N2=%3d N1L=%3d N2R=%3d \n" % (N1,N2, L1, R2))
                 print("\n nCity= %3d dist= %f temp= %f \n" % (nCity, dist, temp))
-                input("...Press Enter to continue...")
+                # input("...Press Enter to continue...")
         return dist,True
     else: #reject
         return dist,False
-
 
 
 #'__name__' allows you to write code that runs only when the script is executed directly (not when imported).
@@ -148,7 +153,7 @@ if __name__ == '__main__':
     print(f"Number of cities is {nCity}.")
 
     maxTsteps = 300 #Temp is lowered maxTsteps times
-    fCool = 0.92 #Factor to multiply temp at each cooling step
+    fCool = 0.97 #Factor to multiply temp at each cooling step
     maxSwaps = 2000 #Number of swaps at constant temp
 
     maxAccepted = 10*nCity # Number of accepted configuration changes at constant temperature
@@ -177,10 +182,9 @@ if __name__ == '__main__':
             N1, N2 = -1, -1
             while(N1 < 0 or N1 >= nCity):
                 N1 = (int((random.random()*1000)))%nCity
-                print(N1)
-            while(N2 < 0 or N1==N2):
+                # print(N1)
+            while(N2 < 0 or N1==N2 or N2 >= nCity):
                 N2 = (int((random.random()*1000)))%nCity
-                print(N2)
             
             if (N2 < N1):
                 N1, N2 = N2, N1
@@ -203,6 +207,7 @@ if __name__ == '__main__':
         print("seq = ")
         set_printoptions(precision=3)
         print(seq)
+        # if (t%25==0): input("...Press Enter to continue...")
         print("%c%c" % ('\n', '\n'))
 
         #check if we have approached the optimal solution
