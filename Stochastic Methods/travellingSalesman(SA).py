@@ -62,6 +62,52 @@ def Plot(seq,P,dist,Pnames):
 
 # Plot(s,P,506.75,Pnames)
 
+def swap(P,seq,dist,N1,N2,temp,nCity):
+    L1,R1 = N1 - 1,N1 + 1
+    if(L1 < 0):#L1 must be the last node then as the path is closed
+        L1 += nCity
+    if(R1 >= nCity): R1 = 0 
+
+    L2,R2 = N2 - 1,N2 + 1
+    if (L2 < 0): L2 += nCity
+    if (R2 >= nCity): R2 = 0
+
+    #we need to calculate delta E i.e. change in config between old and new states 
+    delta = 0.0
+    delta += distance(P[seq[L1]],P[seq[N2]])
+    delta += distance(P[seq[N1]],P[seq[R2]])
+    delta -= distance(P[seq[L1]],P[seq[N1]])
+    delta -= distance(P[seq[N2]],P[seq[R2]])
+
+    #other four operations are not always needed
+    if R1 != L2 and R2 != L1: # 'If' N1 and N2 don't have a common neighbour
+        delta += distance(P[seq[N2]], P[seq[R1]])
+        delta += distance(P[seq[L2]], P[seq[N1]])
+        delta -= distance(P[seq[N1]], P[seq[R1]])
+        delta -= distance(P[seq[L2]], P[seq[N2]])
+
+    prob = 1.0
+    if (delta > 0.0):
+        prob = exp(-delta/temp)
+        rand = random.random()
+        if(rand < prob): #accept the change
+            dist += delta
+            seq[N1],seq[N2] = seq[N2],seq[N1]
+            diff = abs(dist - totalDistance(P,seq)) #abs(delta)?
+            if(diff*dist > 0.01):
+                print("\n\n")
+                print( "N1=%3d N2=%3d N1L=%3d N1R=%3d N2L=%3d N2R=%3d \n" % (N1,N2, L1, R1, L2, R2))
+                print(seq)
+
+                print("\n nCity= %3d dist= %f temp= %f \n" % (nCity, dist, temp))
+                input("...Press Enter to continue...")
+            return dist,True
+        else: #reject
+            return dist,False
+
+def reverse(P,seq,dist,N1,N2,temp,nCity):
+    pass
+
 #'__name__' allows you to write code that runs only when the script is executed directly (not when imported).
 if __name__ == '__main__':
     Pnames = []
@@ -75,7 +121,7 @@ if __name__ == '__main__':
 
     maxAccepted = 10*nCity # Number of accepted configuration changes at constant temperature
 
-    seq = np.arange(0,nCity,1) #start from 0 and go till in increment of 1
+    seq = np.arange(0,nCity,1) #start from 0 and go in increments of 1
     dist = totalDistance(P,seq)
     temp = dist * 10.0 #let us start at a high temp
 
@@ -83,7 +129,6 @@ if __name__ == '__main__':
     print("\n\n")
     print(seq)
     print("\n nCity= %3d dist= %f temp= %f \n" % (nCity, dist, temp))
-
     input("...Press Enter to continue...")
 
     Plot(seq,P,dist,Pnames)
