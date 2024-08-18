@@ -106,7 +106,39 @@ def swap(P,seq,dist,N1,N2,temp,nCity):
             return dist,False
 
 def reverse(P,seq,dist,N1,N2,temp,nCity):
-    pass
+    L1,R2 = N1 - 1,N2 + 1
+    if L1 < 0: L1 += nCity
+    if (R2 >= nCity): R2 = 0
+
+    delta = 0.0
+    if (N1 != R2) and (N2 != L1): 
+        delta = distance(P[seq[N1]],P[seq[R2]])+distance(P[seq[N2]],P[seq[L1]]) \
+                -distance(P[seq[N1]],P[seq[L1]])-distance(P[seq[N2]],P[seq[R2]])
+    else: #N1 > N2?
+        return dist,False
+    prob = 1.0
+    if(delta > 0):
+        prob = exp(-delta/temp)
+
+    rndm = random.random()
+    if (rndm < prob):
+        dist += delta
+        i, j = N1,N2
+        while(i < j):
+            seq[i], seq[j] = seq[j], seq[i]
+            i+=1;j-=1
+
+        diff = abs(dist-totalDistance(P,seq))
+        if(diff*dist > 0.01):
+                print(seq)
+
+                print("\n nCity= %3d dist= %f temp= %f \n" % (nCity, dist, temp))
+                input("...Press Enter to continue...")
+        return dist,True
+    else: #reject
+        return dist,False
+
+
 
 #'__name__' allows you to write code that runs only when the script is executed directly (not when imported).
 if __name__ == '__main__':
@@ -133,7 +165,7 @@ if __name__ == '__main__':
 
     Plot(seq,P,dist,Pnames)
 
-    prevDist, countC = 0.0, 0
+    prevDist, constConv = 0.0, 0
 
     for t in range(1,maxTsteps+1,1):
         if temp < 1.0e-6: #min temp threshold
@@ -158,13 +190,37 @@ if __name__ == '__main__':
             #for swap, adjacent cities are not considered..
             if (rc < 0.5) and (N1+1 != N2) and (N1 != ((N2 + 1)%nCity)):
                 #swap the cities
-                pass
+                dist, flag = swap(P, seq, dist, N1, N2, temp, nCity)
             else:
                 #reverse the cities
-                pass
+                dist, flag = reverse(P, seq, dist, N1, N2, temp, nCity)
             #check if we accepted the new configuration
-            if():#?
+            if(flag):#?
                 accepted += 1
             iters += 1
 
+        print("Iteration: %d temp=%f dist=%f" %(t, temp, dist))
+        print("seq = ")
+        set_printoptions(precision=3)
+        print(seq)
+        print("%c%c" % ('\n', '\n'))
+
+        #check if we have approached the optimal solution
+        if(abs(dist-prevDist) < 1.0e-4):
+            constConv += 1
+        else:
+            constConv = 0
+        
+        if(constConv >= 4):
+            break
+
+        if((t%25) == 0):
+            Plot(seq,P,dist,Pnames)
+
+        #reduce temperature...to go towards hill climbing
+        temp *= fCool
+        prevDist = dist
+
+    Plot(seq,P,dist,Pnames)
+        
 
