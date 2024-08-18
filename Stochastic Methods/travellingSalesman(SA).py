@@ -4,7 +4,7 @@ from pylab import *
 import matplotlib
 import matplotlib.pyplot as plt
 # matplotlib.use('tkagg')
-import math
+import math,random
 
 def readcities(Pnames):
     p = [] #co-ordinates of cities
@@ -62,7 +62,7 @@ def Plot(seq,P,dist,Pnames):
 
 # Plot(s,P,506.75,Pnames)
 
-#It allows you to write code that runs only when the script is executed directly (not when imported).
+#'__name__' allows you to write code that runs only when the script is executed directly (not when imported).
 if __name__ == '__main__':
     Pnames = []
     P = readcities(Pnames)
@@ -97,6 +97,29 @@ if __name__ == '__main__':
         iters = 0
 
         while(iters < maxSwaps):
-            N1 = -1
+            N1, N2 = -1, -1
+            while(N1 < 0 or N1 >= nCity):
+                N1 = (int((random.random()*1000)))%nCity
+                print(N1)
+            while(N2 < 0 or N1==N2):
+                N2 = (int((random.random()*1000)))%nCity
+                print(N2)
+            
+            if (N2 < N1):
+                N1, N2 = N2, N1
+
+            rc = random.uniform(0,1)
+            #randomly choosing between swap and reverse
+            #for swap, adjacent cities are not considered..
+            if (rc < 0.5) and (N1+1 != N2) and (N1 != ((N2 + 1)%nCity)):
+                #swap the cities
+                pass
+            else:
+                #reverse the cities
+                pass
+            #check if we accepted the new configuration
+            if():#?
+                accepted += 1
+            iters += 1
 
 
