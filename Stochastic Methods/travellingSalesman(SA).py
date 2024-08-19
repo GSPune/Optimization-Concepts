@@ -58,7 +58,9 @@ def Plot(seq,P,dist,Pnames):
 
     for i in range(len(P)):
         plt.annotate(Pnames[i],(P[i][0],P[i][1]))
-    plt.show()
+    plt.show(block=False)
+    plt.pause(0.3)  # Wait for 3 seconds
+    plt.cla()
 
 # Plot(s,P,506.75,Pnames)
 
@@ -80,8 +82,13 @@ def swap(P,seq,dist,N1,N2,temp,nCity):
     delta -= distance(P[seq[N2]],P[seq[R2]])
 
     #other four operations are not always needed
-    # if R1 != L2 and R2 != L1: # 'If' N1 and N2 don't have a common neighbour
-    if(N1 != L2 and R1 != N2 and R1 != L2 and N2 != L1):
+    # if(N1 != L2 and R1 != N2 and R1 != L2 and N2 != L1 and R2 != L1):
+    if R1 != L2:# and R2 != L1: # 'If' N1 and N2 don't have a common neighbour
+        # print("\n\nIn SWAP Special Case")
+        # print( "N1=%3d N2=%3d N1L=%3d N1R=%3d N2L=%3d N2R=%3d \n" % (N1,N2, L1, R1, L2, R2))
+        # print(seq)
+        # print("\n nCity= %3d dist= %f temp= %f \n" % (nCity, dist, temp))
+
         delta += distance(P[seq[N2]], P[seq[R1]])
         delta += distance(P[seq[L2]], P[seq[N1]])
         delta -= distance(P[seq[N1]], P[seq[R1]])
@@ -94,15 +101,11 @@ def swap(P,seq,dist,N1,N2,temp,nCity):
     rand = random.random()
     if(rand < prob): #accept the change
         dist += delta
-        print("New Dist is:",dist)
+        # print("New Dist is:",dist)
         seq[N1],seq[N2] = seq[N2],seq[N1]
         diff = abs(dist - totalDistance(P,seq)) #abs(delta)?
         if(diff*dist > 0.01):
-            print("\n\nIn SWAP")
-            print( "N1=%3d N2=%3d N1L=%3d N1R=%3d N2L=%3d N2R=%3d \n" % (N1,N2, L1, R1, L2, R2))
-            print(seq)
-
-            print("\n nCity= %3d dist= %f temp= %f \n" % (nCity, dist, temp))
+            pass
             # input("...Press Enter to continue...")
         return dist,True
     else: #reject
@@ -135,11 +138,12 @@ def reverse(P,seq,dist,N1,N2,temp,nCity):
 
         diff = abs(dist-totalDistance(P,seq))
         if(diff*dist > 0.01):
-                print(seq)
-                print("IN Reverse\n")
-                print( "N1=%3d N2=%3d N1L=%3d N2R=%3d \n" % (N1,N2, L1, R2))
-                print("\n nCity= %3d dist= %f temp= %f \n" % (nCity, dist, temp))
-                # input("...Press Enter to continue...")
+            pass
+            # print(seq)
+            # print("IN Reverse\n")
+            # print( "N1=%3d N2=%3d N1L=%3d N2R=%3d \n" % (N1,N2, L1, R2))
+            # print("\n nCity= %3d dist= %f temp= %f \n" % (nCity, dist, temp))
+            # input("...Press Enter to continue...")
         return dist,True
     else: #reject
         return dist,False
@@ -203,12 +207,12 @@ if __name__ == '__main__':
                 accepted += 1
             iters += 1
 
-        print("Iteration: %d temp=%f dist=%f" %(t, temp, dist))
-        print("seq = ")
-        set_printoptions(precision=3)
-        print(seq)
+        # print("Iteration: %d temp=%f dist=%f" %(t, temp, dist))
+        # print("seq = ")
+        # set_printoptions(precision=3)
+        # print(seq)
         # if (t%25==0): input("...Press Enter to continue...")
-        print("%c%c" % ('\n', '\n'))
+        # print("%c%c" % ('\n', '\n'))
 
         #check if we have approached the optimal solution
         if(abs(dist-prevDist) < 1.0e-4):
@@ -219,8 +223,9 @@ if __name__ == '__main__':
         if(constConv >= 4):
             break
 
-        if((t%25) == 0):
-            Plot(seq,P,dist,Pnames)
+        # if((t%5) == 0):
+        Plot(seq,P,dist,Pnames)
+
 
         #reduce temperature...to go towards hill climbing
         temp *= fCool
