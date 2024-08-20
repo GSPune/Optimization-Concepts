@@ -59,7 +59,7 @@ def Plot(seq,P,dist,Pnames):
     for i in range(len(P)):
         plt.annotate(Pnames[i],(P[i][0],P[i][1]))
     plt.show(block=False)
-    plt.pause(0.3)  # Wait for 3 seconds
+    plt.pause(0.01)  # Wait for 3 seconds
     plt.cla()
 
 # Plot(s,P,506.75,Pnames)
@@ -83,7 +83,7 @@ def swap(P,seq,dist,N1,N2,temp,nCity):
 
     #other four operations are not always needed
     # if(N1 != L2 and R1 != N2 and R1 != L2 and N2 != L1 and R2 != L1):
-    if R1 != L2:# and R2 != L1: # 'If' N1 and N2 don't have a common neighbour
+    if R1 != L2 or R2 != L1: # 'If' N1 and N2 don't have a common neighbour
         # print("\n\nIn SWAP Special Case")
         # print( "N1=%3d N2=%3d N1L=%3d N1R=%3d N2L=%3d N2R=%3d \n" % (N1,N2, L1, R1, L2, R2))
         # print(seq)
