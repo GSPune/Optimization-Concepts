@@ -36,3 +36,14 @@ class City:
     def __repr__(self):
         return self.name + "(" + str(self.x) + ", " + str(self.y) + ")"
     
+class Fitness:
+    def __init__(self,route):
+        self.route = route
+        self.distance = 0.0
+        self.fitness = 0.0
+
+    def routeDistance(self):
+        self.distance = getTotalDistance(self.route)
+
+    def getFitness(self):
+        pass
