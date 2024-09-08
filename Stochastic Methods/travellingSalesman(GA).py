@@ -102,19 +102,56 @@ def createFittestPopulation(fittest,population,popRetention,popSize):
 #     print(getTotalDistance(cityR), end=", ")
 # print()
 
-def geneCrossover(elitePopulation):
+def geneCrossover_Parents(elitePopulation):
     nElite = len(elitePopulation)
     #Now we choose parents -- 1st Parent is the strongest and 2nd is chosen randomly
     p1 = elitePopulation[0]
     while(index < 0 or index==0 or index >= nElite):
         index = (int((random.random()*1000)))%nElite
     p2 = elitePopulation[index]
+    child1 = createChild(p1,p2)
+    child2 = createChild(p1,p2)
+    mutation(child1);mutation(child2)
+    return child1,child2
+
+def newGeneration(elitePopulation,popSize,):
+    pass
+
+def createChild(parent1,parent2):
     # choose two indices randomly to take a subset of p2
+    c1 = [None]*len(parent2)
+
     while (True):
-        i1 = (int((random.random()*1000)))%len(p2)
-        i2 = (int((random.random()*1000)))%len(p2)
+        i1 = (int((random.random()*1000)))%len(parent2)
+        i2 = (int((random.random()*1000)))%len(parent2)
         diff = abs(i2-i1)
-        if (diff > 0 and diff < (len(p2)//2)): break
+        if (diff > 0 and diff < (len(parent2)//2)): break
 
     start = min(i1,i2)
     end = max(i1,i2)
+    #genes of the weaker parent
+    for i in range(start,end+1,1):
+        c1[i] = parent2[i]
+    #note: 'r' is a city object
+    counter = 0
+    for r in parent1:
+        if r not in c1:
+            while(c1[counter] != None):
+                counter+=1
+            c1[counter] = r
+            counter+=1
+    return c1
+
+def mutation(child,chance=0.04):
+    r = random.random()
+    # chance = 0.04
+    if(r > 1-chance):
+        while(True):
+            pos1 = (int((random.random()*1000)))%len(child)
+            pos2 = (int((random.random()*1000)))%len(child)
+            if pos1 != pos2: break
+        #swap the cities aka genes
+        child[pos1], child[pos2] = child[pos2], child[pos1]
+        return child
+    else:
+        return child
