@@ -7,28 +7,6 @@ import matplotlib.pyplot as plt
 # matplotlib.use('tkagg')
 import math,random
 
-def readcities():
-    citylist = [] #co-ordinates of cities
-    j = 0 #counter
-    geolocator = Nominatim(user_agent="SG_App")
-
-    with open("./india_cities.txt") as file:
-        with open('output.txt','w') as out:
-            for line in file:
-                city = line.rstrip("\n")
-                if(city == ""):
-                    break
-                # Pnames.insert(j,city)#insert at jth position
-                city += ", India"
-                pt = geolocator.geocode(city,timeout=10000)
-                #  out.write("City = ",city,pt.latitude,pt.longitude)
-                out.write(f"City = {city} {pt.latitude},{pt.longitude} \n")
-                # out.write('/n')
-                # citylist.insert(j,[pt.latitude,pt.longitude])
-                citylist.append(City(pt.latitude,pt.longitude,city))
-                j += 1
-    return citylist
-
 class City:
     #instance vars are x,y and name
     def __init__(self,x,y,name):
@@ -38,8 +16,6 @@ class City:
 
     def __repr__(self):
         return self.name + "(" + str(self.x) + ", " + str(self.y) + ")"
-
-cities = readcities()
 
 class Fitness:
     def __init__(self,route):
@@ -69,11 +45,33 @@ def getTotalDistance(route):
     dist += distance(route[0],route[N-1])
     return dist
 
+def readcities():
+    citylist = [] #co-ordinates of cities
+    j = 0 #counter
+    geolocator = Nominatim(user_agent="SG_App")
+
+    with open("./india_cities.txt") as file:
+        with open('output.txt','w') as out:
+            for line in file:
+                city = line.rstrip("\n")
+                if(city == ""):
+                    break
+                # Pnames.insert(j,city)#insert at jth position
+                city += ", India"
+                pt = geolocator.geocode(city,timeout=10000)
+                #  out.write("City = ",city,pt.latitude,pt.longitude)
+                out.write(f"City = {city} {pt.latitude},{pt.longitude} \n")
+                # out.write('/n')
+                # citylist.insert(j,[pt.latitude,pt.longitude])
+                citylist.append(City(pt.latitude,pt.longitude,city))
+                j += 1
+    return citylist
+
+cities = readcities()
+
 def createRoute(citylist):
     route = random.sample(citylist,len(citylist))
     return route
-
-# for i in range(3):
 
 def initialPopulation(popSize,citylist):
     population = []
@@ -89,4 +87,34 @@ def rankRoutes(population):
         fitnessResult[i] = Fitness(population[i]).getFitness()
     return sorted(fitnessResult.items(),key = operator.itemgetter(1),reverse=True)
 
-print(rankRoutes(pop))
+#fittest is a list of tuples sorted in descending order
+def createFittestPopulation(fittest,population,popRetention,popSize):
+    eliteP = []
+    retention = int(popRetention*popSize)
+    subset = fittest[:retention]
+    for item in subset:
+        eliteP.append(population[item[0]])
+    return eliteP
+
+# fitt = rankRoutes(pop)
+# topPop = createFittestPopulation(fitt,pop,0.85,10)
+# for cityR in topPop:
+#     print(getTotalDistance(cityR), end=", ")
+# print()
+
+def geneCrossover(elitePopulation):
+    nElite = len(elitePopulation)
+    #Now we choose parents -- 1st Parent is the strongest and 2nd is chosen randomly
+    p1 = elitePopulation[0]
+    while(index < 0 or index==0 or index >= nElite):
+        index = (int((random.random()*1000)))%nElite
+    p2 = elitePopulation[index]
+    # choose two indices randomly to take a subset of p2
+    while (True):
+        i1 = (int((random.random()*1000)))%len(p2)
+        i2 = (int((random.random()*1000)))%len(p2)
+        diff = abs(i2-i1)
+        if (diff > 0 and diff < (len(p2)//2)): break
+
+    start = min(i1,i2)
+    end = max(i1,i2)
