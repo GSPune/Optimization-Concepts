@@ -53,7 +53,7 @@ def Plot(seq,P,dist,Pnames):
     #print(Pt[:,0])
 
     # plt.savefig('img.png')
-    plt.title('Total distance='+str(dist))
+    plt.title('(SA)Total distance='+str(dist))
     plt.plot(Pt[:,0],Pt[:,1],'-o')
 
     for i in range(len(P)):

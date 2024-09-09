@@ -56,9 +56,9 @@ def Plot(route,dist,Pnames):
     plt.plot(Pt[:,0],Pt[:,1],'-o')
 
     for i in range(len(route)):
-        plt.annotate(Pnames[i],(Pt[i][0],Pt[i][1]))
+        plt.annotate(route[i].name,(Pt[i][0],Pt[i][1]))
     plt.show(block=False)
-    plt.pause(1)  # Wait for 3 seconds
+    plt.pause(0.01)  # Wait for t seconds
     plt.cla()
 
 def readcities(Pnames):
@@ -137,7 +137,7 @@ def createChild(parent1,parent2):
             counter+=1
     return c1
 
-def mutation(child,chance=0.04):
+def mutation(child,chance):
     r = random.random()
     # chance = 0.04
     if(r > 1-chance):
@@ -147,11 +147,12 @@ def mutation(child,chance=0.04):
             if pos1 != pos2: break
         #swap the cities aka genes
         child[pos1], child[pos2] = child[pos2], child[pos1]
+        # print("mutation occured for child...with r = ", r)
         return child
     else:
         return child
 
-def geneCrossover_Parents(elitePopulation):
+def geneCrossover_Parents(elitePopulation,mutProb):
     nElite = len(elitePopulation)
     #Now we choose parents -- 1st Parent is the strongest and 2nd is chosen randomly
     p1 = elitePopulation[0]
@@ -162,18 +163,18 @@ def geneCrossover_Parents(elitePopulation):
     child1 = createChild(p1,p2)
     child2 = createChild(p1,p2)
     #mutation by chance
-    mutation(child1);mutation(child2)
+    child1=mutation(child1,mutProb);child2=mutation(child2,mutProb)
     return [child1,child2]
 
-def newGeneration(elitePopulation,popSize,popRetention):
+def newGeneration(elitePopulation,popSize,popRetention,mutProb):
     maxChildren = round(0.3*popSize)
     childrenN = []
     #children are born
     for k in range(0,maxChildren):
-        childrenN.extend(geneCrossover_Parents(elitePopulation))    
+        childrenN.extend(geneCrossover_Parents(elitePopulation,mutProb))    
     # print(f"The number of routes of all the children born is {len(childrenN)}")
     percentageChildren = ((1-popRetention)*100)/(2*maxChildren)
-    elite_Children = createFittestPopulation(rankRoutes(childrenN),elitePopulation,percentageChildren,len(childrenN))
+    elite_Children = createFittestPopulation(rankRoutes(childrenN),childrenN,percentageChildren,len(childrenN))
     # print(f"The number of routes in the fittest population is {len(elitePopulation)} and no. of routes in fittest children is {len(elite_Children)}\n\n")
     # print(len(elitePopulation+elite_Children))
     return elitePopulation+elite_Children #joining the 2 lists
@@ -195,22 +196,41 @@ def geneticAlgorithm(maxPopSize,mutProb,popRetention,maxPairs,maxGen):
     #termination condition
     #modify plotting func and animation
     #test out the code
-
+    threshold = 0.01
     Names,fittnessTrack = [],[]
     cities = readcities(Names)
+
     intialPop = initialPopulation(maxPopSize,cities)
     currentPopulation = intialPop
-    best = currentPopulation[0][0]
-    Plot()
+    fittnessTrack.append(averageFittness(currentPopulation))
+    bestRoute = currentPopulation[0]
+    bestDistAchieved = getTotalDistance(currentPopulation[0])
+    Plot(bestRoute,bestDistAchieved,Names)
+   
+
     for t in range(1,maxGen+1,1):
-        plot
         fittestRanked = rankRoutes(currentPopulation)
-        topPop = createFittestPopulation(fittestRanked,intialPop,popRetention,maxPopSize)
-        new_population = newGeneration(topPop,maxPopSize,popRetention)
+        topPop = createFittestPopulation(fittestRanked,currentPopulation,popRetention,maxPopSize)
+
+        new_population = newGeneration(topPop,maxPopSize,popRetention,mutProb)
         fittnessTrack.append(averageFittness(new_population))
         currentPopulation = new_population
 
+        bestRoute = currentPopulation[0]
+        bestDistAchieved = getTotalDistance(currentPopulation[0])
+        Plot(bestRoute,bestDistAchieved,Names)
 
-# if __name__ == '__main__':
-#     pass
+        if(t % 50 == 0):
+            print(f"Fitness is now {fittnessTrack[t]} for the {t} iteration")
+        # if(fittnessTrack[t]-fittnessTrack[t-1] < threshold):
+        #     break
+    print("Fitness (final) is now: ",fittnessTrack[t])
+    print("Best dist is achieved is",bestDistAchieved)
 
+if __name__ == '__main__':
+    maxPopSize = 100
+    mutProb = 0.03
+    popRetention = 0.85
+    maxPairs = 25
+    maxGen = 500
+    geneticAlgorithm(maxPopSize,mutProb,popRetention,maxPairs,maxGen)
