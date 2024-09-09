@@ -1,11 +1,11 @@
 from geopy.geocoders import Nominatim
-from numpy import *
-from pylab import *
 import operator
+import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 # matplotlib.use('tkagg')
 import math,random
+import statistics  
 
 class City:
     #instance vars are x,y and name
@@ -45,7 +45,23 @@ def getTotalDistance(route):
     dist += distance(route[0],route[N-1])
     return dist
 
-def readcities():
+def Plot(route,dist,Pnames):
+    Pt = [[route[i].x,route[i].y] for i in range(len(route))]
+    Pt += [[route[0].x,route[0].y]]
+    Pt = np.array(Pt)
+    #print(Pt[:,0])
+
+    # plt.savefig('img.png')
+    plt.title('(GA)Total distance='+str(dist))
+    plt.plot(Pt[:,0],Pt[:,1],'-o')
+
+    for i in range(len(route)):
+        plt.annotate(Pnames[i],(Pt[i][0],Pt[i][1]))
+    plt.show(block=False)
+    plt.pause(1)  # Wait for 3 seconds
+    plt.cla()
+
+def readcities(Pnames):
     citylist = [] #co-ordinates of cities
     j = 0 #counter
     geolocator = Nominatim(user_agent="SG_App")
@@ -56,7 +72,7 @@ def readcities():
                 city = line.rstrip("\n")
                 if(city == ""):
                     break
-                # Pnames.insert(j,city)#insert at jth position
+                Pnames.insert(j,city)#insert at jth position
                 city += ", India"
                 pt = geolocator.geocode(city,timeout=10000)
                 #  out.write("City = ",city,pt.latitude,pt.longitude)
@@ -66,8 +82,6 @@ def readcities():
                 citylist.append(City(pt.latitude,pt.longitude,city))
                 j += 1
     return citylist
-
-cities = readcities()
 
 def createRoute(citylist):
     route = random.sample(citylist,len(citylist))
@@ -79,8 +93,6 @@ def initialPopulation(popSize,citylist):
         population.append(createRoute(citylist))
     return population
 
-pop = initialPopulation(10,cities)
-
 def rankRoutes(population):
     fitnessResult = {} #set ~ dict?
     for i in range(0,len(population)):
@@ -90,32 +102,15 @@ def rankRoutes(population):
 #fittest is a list of tuples sorted in descending order
 def createFittestPopulation(fittest,population,popRetention,popSize):
     eliteP = []
-    retention = int(popRetention*popSize)
+    retention = round(popRetention*popSize)
     subset = fittest[:retention]
     for item in subset:
         eliteP.append(population[item[0]])
     return eliteP
 
-# fitt = rankRoutes(pop)
-# topPop = createFittestPopulation(fitt,pop,0.85,10)
 # for cityR in topPop:
 #     print(getTotalDistance(cityR), end=", ")
 # print()
-
-def geneCrossover_Parents(elitePopulation):
-    nElite = len(elitePopulation)
-    #Now we choose parents -- 1st Parent is the strongest and 2nd is chosen randomly
-    p1 = elitePopulation[0]
-    while(index < 0 or index==0 or index >= nElite):
-        index = (int((random.random()*1000)))%nElite
-    p2 = elitePopulation[index]
-    child1 = createChild(p1,p2)
-    child2 = createChild(p1,p2)
-    mutation(child1);mutation(child2)
-    return child1,child2
-
-def newGeneration(elitePopulation,popSize,):
-    pass
 
 def createChild(parent1,parent2):
     # choose two indices randomly to take a subset of p2
@@ -155,3 +150,67 @@ def mutation(child,chance=0.04):
         return child
     else:
         return child
+
+def geneCrossover_Parents(elitePopulation):
+    nElite = len(elitePopulation)
+    #Now we choose parents -- 1st Parent is the strongest and 2nd is chosen randomly
+    p1 = elitePopulation[0]
+    index = -1
+    while(index < 0 or index==0 or index >= nElite):
+        index = (int((random.random()*1000)))%nElite
+    p2 = elitePopulation[index]
+    child1 = createChild(p1,p2)
+    child2 = createChild(p1,p2)
+    #mutation by chance
+    mutation(child1);mutation(child2)
+    return [child1,child2]
+
+def newGeneration(elitePopulation,popSize,popRetention):
+    maxChildren = round(0.3*popSize)
+    childrenN = []
+    #children are born
+    for k in range(0,maxChildren):
+        childrenN.extend(geneCrossover_Parents(elitePopulation))    
+    # print(f"The number of routes of all the children born is {len(childrenN)}")
+    percentageChildren = ((1-popRetention)*100)/(2*maxChildren)
+    elite_Children = createFittestPopulation(rankRoutes(childrenN),elitePopulation,percentageChildren,len(childrenN))
+    # print(f"The number of routes in the fittest population is {len(elitePopulation)} and no. of routes in fittest children is {len(elite_Children)}\n\n")
+    # print(len(elitePopulation+elite_Children))
+    return elitePopulation+elite_Children #joining the 2 lists
+
+def averageFittness(population):
+    fitnessResult=[]
+    for i in range(0,len(population)):
+        fitnessResult.append(Fitness(population[i]).getFitness())
+    fm = statistics.fmean(fitnessResult) 
+    return fm   
+
+def geneticAlgorithm(maxPopSize,mutProb,popRetention,maxPairs,maxGen):
+    pass
+    #read cities
+    #gen init pop
+    #create fittest subset and choose parents for mating
+    #create 0.3popSize children and choose x% of them to make new gen
+    #repeat procedure with new gen
+    #termination condition
+    #modify plotting func and animation
+    #test out the code
+
+    Names,fittnessTrack = [],[]
+    cities = readcities(Names)
+    intialPop = initialPopulation(maxPopSize,cities)
+    currentPopulation = intialPop
+    best = currentPopulation[0][0]
+    Plot()
+    for t in range(1,maxGen+1,1):
+        plot
+        fittestRanked = rankRoutes(currentPopulation)
+        topPop = createFittestPopulation(fittestRanked,intialPop,popRetention,maxPopSize)
+        new_population = newGeneration(topPop,maxPopSize,popRetention)
+        fittnessTrack.append(averageFittness(new_population))
+        currentPopulation = new_population
+
+
+# if __name__ == '__main__':
+#     pass
+
