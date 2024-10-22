@@ -66,7 +66,7 @@ def readcities(Pnames):
     j = 0 #counter
     geolocator = Nominatim(user_agent="SG_App")
 
-    with open("./india_cities.txt") as file:
+    with open("./India_cities.txt") as file:
         with open('output.txt','w') as out:
             for line in file:
                 city = line.rstrip("\n")
@@ -239,20 +239,21 @@ def geneticAlgorithm(maxPopSize,mutProb,popRetention,maxPairs,maxGen):
     print("\nFitness (final) is now: ",fittnessTrack[iters])
     print("Best distance achieved is ",bestDistAchieved)
     plt.close()
-    input("...Press Enter to continue...View the fittness the graph")
+    input("...Press Enter to continue...View the avg.fittness graph")
     
     plt.plot(fittnessTrack)
     plt.xlabel('Generations')
     plt.ylabel('Average Fittness')
     plt.title('Increase in Fittness(GA)')
     plt.show()
-    plt.pause(1)  # Wait for t seconds
-    plt.cla()
+    # plt.savefig("AverageFitness.png")
+    # plt.pause(0.1)  # Wait for t seconds
+    # plt.cla()
    
 
 if __name__ == '__main__':
     maxPopSize = 100
-    mutProb = 0.05
+    mutProb = 0.07
     popRetention = 0.85
     maxPairs = 25
     maxGen = 100
