@@ -107,3 +107,15 @@ def distance_matrix(citylist,cityNames):
     print(df)
 
 distance_matrix(cities,pnames)
+
+def antColonyOptimization():
+    pass
+
+def pheromoneEvap(): #?
+    pass
+
+def chooseCity():
+    pass
+
+if __name__ == 'main':
+    pass
